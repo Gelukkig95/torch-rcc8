@@ -1,5 +1,5 @@
 r"""
-torch_morph_rcc8/modules.py
+torch_rcc8/modules.py
 ---------------------------
 Vectorized GPU Matrix-Multiplication RCC-8 External Connection (EC) Adjacency & Higra Token Extractor.
 """
@@ -7,14 +7,13 @@ Vectorized GPU Matrix-Multiplication RCC-8 External Connection (EC) Adjacency & 
 import time
 import numpy as np
 try:
-    import higra as hg
+    pass
 except ImportError:
     hg = None
 from scipy import ndimage
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
 
 def compute_rcc8_ec_matrix(token_masks: list | torch.Tensor, dilation_iter: int = 2) -> np.ndarray | torch.Tensor:
     r"""
@@ -40,66 +39,6 @@ def compute_rcc8_ec_matrix(token_masks: list | torch.Tensor, dilation_iter: int 
     ec_mat = (disjoint & touch).float()
     ec_mat.fill_diagonal_(0.0)
     return ec_mat if is_tensor else ec_mat.cpu().numpy()
-
-
-def extract_higra_rcc8_tokens(scene: np.ndarray):
-    """Extracts connected component tokens and their RCC8-EC adjacency matrix via Higra Max-Tree."""
-    t0 = time.perf_counter()
-    H, W = scene.shape
-    num_leaves = H * W
-    quant = np.round(scene * 255.0).astype(np.float64) / 255.0
-    bg_med = float(np.median(quant))
-
-    graph = hg.get_4_adjacency_graph((H, W))
-    tree, alt = hg.component_tree_max_tree(graph, quant)
-    area = hg.attribute_area(tree)
-    deleted = area < 6
-    deleted[:num_leaves] = False
-    clean_pot = hg.reconstruct_leaf_data(tree, alt, deleted).reshape(H, W)
-
-    sup_mask = clean_pot > 0.20
-    core_tier = clean_pot > 0.45
-
-    lbl_sup, n_sup = ndimage.label(sup_mask)
-    token_masks = []
-    for sid in range(1, n_sup + 1):
-        reg = (lbl_sup == sid)
-        icore = reg & core_tier
-        iec = reg & (~core_tier)
-        if icore.sum() >= 10 and iec.sum() >= 10:
-            token_masks.append(icore)
-            l_ec, n_ec = ndimage.label(iec)
-            for eid in range(1, n_ec + 1):
-                if (l_ec == eid).sum() >= 8:
-                    token_masks.append(l_ec == eid)
-        elif reg.sum() >= 8:
-            token_masks.append(reg)
-
-    K = len(token_masks)
-    border = np.zeros((H, W), dtype=bool)
-    border[0, :] = border[-1, :] = border[:, 0] = border[:, -1] = True
-
-    feats = np.zeros((K, 5), dtype=np.float32)
-    for i, m in enumerate(token_masks):
-        dyn = float(clean_pot[m].max() - bg_med)
-        b_touch = min(1.0, float((m & border).sum()) / 12.0)
-        ys, xs = np.where(m)
-        if len(ys) > 5:
-            eig = np.linalg.eigvalsh(np.cov(np.vstack([ys, xs])))
-            elong = min(1.0, float(np.sqrt(max(eig[-1], 1e-5) / max(eig[0], 1e-5))) / 10.0)
-        else:
-            elong = 0.1
-        filled = ndimage.binary_fill_holes(m)
-        fy, fx = np.where(filled)
-        max_r = float(np.hypot(fy - fy.mean(), fx - fx.mean()).max())
-        rad_fill = min(1.0, float(filled.sum() / max(np.pi * (max_r ** 2), 1.0)))
-        hole_depth = max(0.0, float(clean_pot[m].mean() - clean_pot[filled].min()))
-        feats[i] = [dyn, b_touch, elong, rad_fill, hole_depth]
-
-    rcc8_ec = compute_rcc8_ec_matrix(token_masks, dilation_iter=2)
-    ms = (time.perf_counter() - t0) * 1000.0
-    return torch.from_numpy(feats), torch.from_numpy(rcc8_ec), token_masks, ms
-
 
 class TopoRCC8Transformer(nn.Module):
     """Object-Centric Topological Token & RCC8 Relational Self-Attention Module."""

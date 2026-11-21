@@ -1,24 +1,8 @@
 import pathlib
 import numpy as np
-import higra as hg
 import torch
 
-from torch_morph_rcc8 import (
-    kuratowski_opening,
-    classify_rcc8_grid_jepd,
-    compute_rcc8_matrix,
-    DifferentiableFuzzyRCC8Loss,
-    TopoRCC8Transformer,
-    extract_higra_rcc8_tokens,
-    ConformalRiskCalibrator,
-    gpu_pebay_moment_merge,
-    gpu_tree_leaffix_accumulate,
-    gpu_tree_rootfix_reconstruct,
-    AgriTopoExtractor,
-    FastTensorRasterRCC8,
-    AgriTopoReferee,
-)
-
+from torch_rcc8 import kuratowski_opening, classify_rcc8_grid_jepd, compute_rcc8_matrix, DifferentiableFuzzyRCC8Loss, TopoRCC8Transformer, ConformalRiskCalibrator
 
 def test_tier1_kuratowski_and_rcc8_jepd_axioms():
     rng = np.random.default_rng(42)
@@ -37,18 +21,6 @@ def test_tier1_kuratowski_and_rcc8_jepd_axioms():
     mat = compute_rcc8_matrix(masks)
     assert int(mat[0, 1].item()) == 1
     assert int(mat[0, 2].item()) == 0
-
-
-def test_tier1_monotonic_persistence_invariance():
-    rng = np.random.default_rng(42)
-    X = rng.random((48, 48)).astype(np.float64)
-    graph = hg.get_4_adjacency_graph((48, 48))
-    t1, a1 = hg.component_tree_max_tree(graph, X)
-    t2, a2 = hg.component_tree_max_tree(graph, 3.7 * X + 1.25)
-    d1, d2 = hg.attribute_dynamics(t1, a1), hg.attribute_dynamics(t2, a2)
-    rank_corr = float(np.corrcoef(np.argsort(np.argsort(d1)), np.argsort(np.argsort(d2)))[0, 1])
-    assert rank_corr > 0.999
-
 
 def test_tier1_bloch_fuzzy_rcc8_all_8_relations_gradcheck():
     """Verifies analytical gradients across all 8 fuzzy RCC-8 relations and reduction modes."""
@@ -70,70 +42,3 @@ def test_tier1_bloch_fuzzy_rcc8_all_8_relations_gradcheck():
     }
     assert loss_none["fuzzy_EC"].shape == (1, 1)
 
-
-def test_tier2_tw2026_pebay_moments_and_higra_tokens():
-    vals = torch.tensor([1.2, -0.5, 3.4, 0.8], dtype=torch.float64)
-    area = torch.ones(4, dtype=torch.float64)
-    mean = vals.clone()
-    m2 = torch.zeros(4, dtype=torch.float64)
-
-    gpu_pebay_moment_merge(area, mean, m2, torch.tensor([0, 2]), torch.tensor([1, 3]))
-    gpu_pebay_moment_merge(area, mean, m2, torch.tensor([0]), torch.tensor([2]))
-
-    assert torch.isclose(mean[0], vals.mean(), atol=1e-12)
-    assert torch.isclose(m2[0] / 4.0, vals.var(unbiased=False), atol=1e-12)
-
-    yy, xx = np.mgrid[0:64, 0:64]
-    scene = np.full((64, 64), 0.10, dtype=np.float32)
-    body = ((yy - 32) ** 2 + (xx - 32) ** 2) <= 25
-    wing = (((yy - 32) ** 2 + (xx - 40) ** 2) <= 16) & (~body)
-    scene[body], scene[wing] = 0.80, 0.28
-    feats, ec_mat, _, _ = extract_higra_rcc8_tokens(scene)
-    model = TopoRCC8Transformer(d_model=8)
-    probs, _ = model(feats, ec_mat)
-    assert probs.shape[0] == feats.shape[0]
-
-
-def test_tier3_crc_small_n_and_rootfix_reversal_and_large_mask():
-    cal = ConformalRiskCalibrator(target_alpha=0.02)
-    scores = np.concatenate([np.full(80, 0.85), np.full(20, 0.15)])
-    is_dist = np.concatenate([np.zeros(80, dtype=bool), np.ones(20, dtype=bool)])
-    lam = cal.calibrate(scores, is_dist)
-    assert abs(lam - 0.16) < 1e-6
-
-    edge_steps = [
-        torch.tensor([[1, 2], [1, 3]]),
-        torch.tensor([[0, 1]]),
-    ]
-    attrs = torch.tensor([1.0, 1.0, 1.0, 1.0])
-    gpu_tree_leaffix_accumulate(edge_steps, attrs)
-    assert attrs.tolist() == [4.0, 3.0, 1.0, 1.0]
-
-    deltas = torch.tensor([10.0, 5.0, 2.0, 3.0])
-    gpu_tree_rootfix_reconstruct(edge_steps, deltas)
-    assert deltas.tolist() == [10.0, 15.0, 17.0, 18.0]
-
-    large_masks = torch.zeros((2, 128, 128), dtype=torch.float32)
-    large_masks[0, 0:60, 0:60] = 1.0
-    large_masks[1, 0:80, 0:80] = 1.0
-    mat = compute_rcc8_matrix(large_masks)
-    assert int(mat[0, 1].item()) == 3
-    assert int(mat[1, 0].item()) == 6
-
-
-def test_tier4_extractor_raster_rcc8_and_referee():
-    rng = np.random.default_rng(42)
-    dummy_rgb = rng.integers(0, 255, size=(3, 48, 48), dtype=np.uint8)
-    ext = AgriTopoExtractor(work_size=48)
-    vec14 = ext.extract_single(dummy_rgb)
-    assert vec14.shape == (14,) and not np.isnan(vec14).any()
-
-    raster_kernel = FastTensorRasterRCC8(work_size=48)
-    batch_rgb = torch.rand(2, 3, 48, 48)
-    vec8 = raster_kernel(batch_rgb)
-    m_core, m_wing, m_border = raster_kernel.compute_spatial_masks(batch_rgb, (24, 24))
-    assert vec8.shape == (2, 8) and m_core.shape == (2, 1, 24, 24)
-
-    ref = AgriTopoReferee()
-    rep = ref.judge_crop_weed_blob("Blob_1", "weed", 0.90, "NTPP", 0.80)
-    assert rep.final_label == "crop" and rep.final_state == "OVERRIDDEN"

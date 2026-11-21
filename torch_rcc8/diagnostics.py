@@ -1,5 +1,5 @@
 r"""
-torch_morph_rcc8/diagnostics.py
+torch_rcc8/diagnostics.py
 -------------------------------
 Pure PyTorch GPU/CPU Morphological & Fuzzy RCC-8 Spatial Logic Operators.
 Academic References:
@@ -15,7 +15,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-
 def kuratowski_closure(mask: np.ndarray | torch.Tensor) -> np.ndarray | torch.Tensor:
     """Kuratowski closure (dilation) with unified 3x3 structuring element across Tensor and NumPy inputs."""
     if isinstance(mask, torch.Tensor):
@@ -23,14 +22,12 @@ def kuratowski_closure(mask: np.ndarray | torch.Tensor) -> np.ndarray | torch.Te
     t = torch.from_numpy(np.asarray(mask, dtype=np.float32))
     return (morph_dilation(t, kernel_size=3) > 0.5).numpy()
 
-
 def kuratowski_interior(mask: np.ndarray | torch.Tensor) -> np.ndarray | torch.Tensor:
     """Kuratowski interior (erosion) with unified boundary-consistent zero padding."""
     if isinstance(mask, torch.Tensor):
         return morph_erosion(mask, kernel_size=3, border_value=0.0) > 0.5
     t = torch.from_numpy(np.asarray(mask, dtype=np.float32))
     return (morph_erosion(t, kernel_size=3, border_value=0.0) > 0.5).numpy()
-
 
 def kuratowski_opening(mask: np.ndarray | torch.Tensor) -> np.ndarray | torch.Tensor:
     """Idempotent 2x2 topological opening supporting PyTorch Tensors and NumPy arrays."""
@@ -46,7 +43,6 @@ def kuratowski_opening(mask: np.ndarray | torch.Tensor) -> np.ndarray | torch.Te
     eroded = (F.conv2d(t, weight, padding=0) >= 3.5).to(t.dtype)
     opened = (F.conv_transpose2d(eroded, weight, stride=1) > 0.5).reshape(orig_shape)
     return opened if is_tensor else opened.cpu().numpy()
-
 
 def classify_rcc8_grid_jepd(A: np.ndarray | torch.Tensor, B: np.ndarray | torch.Tensor) -> str:
     """Grid-topology JEPD RCC-8 classifier (Randell et al., 1992; Bloch, 2005, Eq. 35)."""
@@ -66,9 +62,7 @@ def classify_rcc8_grid_jepd(A: np.ndarray | torch.Tensor, B: np.ndarray | torch.
         return "NTPPi" if torch.equal(t_b & kuratowski_interior(t_a), t_b) else "TPPi"
     return "PO"
 
-
 RCC8_NAMES = ["DC", "EC", "PO", "TPP", "NTPP", "EQ", "TPPi", "NTPPi"]
-
 
 def morph_dilation(x: torch.Tensor, kernel_size: int = 3) -> torch.Tensor:
     """Morphological dilation supporting 2D (H, W), 3D (N, H, W), 4D (B, C, H, W), and 5D (B, C, D, H, W) tensors."""
@@ -88,7 +82,6 @@ def morph_dilation(x: torch.Tensor, kernel_size: int = 3) -> torch.Tensor:
         out = F.max_pool2d(t_pad, kernel_size=kernel_size, stride=1, padding=0)
     return out.reshape(orig_shape)
 
-
 def morph_erosion(x: torch.Tensor, kernel_size: int = 3, border_value: float = 0.0) -> torch.Tensor:
     """Morphological erosion supporting 2D, 3D, 4D, and 5D tensors via duality."""
     if kernel_size <= 1:
@@ -106,7 +99,6 @@ def morph_erosion(x: torch.Tensor, kernel_size: int = 3, border_value: float = 0
         x_pad = F.pad(t, (p1, p2, p1, p2), mode="constant", value=border_value)
         out = -F.max_pool2d(-x_pad, kernel_size=kernel_size, stride=1, padding=0)
     return out.reshape(orig_shape)
-
 
 @torch.no_grad()
 def compute_rcc8_matrix(masks: torch.Tensor, kernel_size: int = 3) -> torch.Tensor:
@@ -160,7 +152,6 @@ def compute_rcc8_matrix(masks: torch.Tensor, kernel_size: int = 3) -> torch.Tens
     rcc[b_in_a & ~a_in_b & b_in_int_a] = 7
 
     return rcc.squeeze(0) if is_unbatched else rcc
-
 
 def fuzzy_rcc8_loss(
     mu: torch.Tensor,
@@ -227,7 +218,6 @@ def fuzzy_rcc8_loss(
         return {k: v.sum() for k, v in raw_dict.items()}
     return raw_dict
 
-
 class DifferentiableFuzzyRCC8Loss(nn.Module):
     """PyTorch-compliant Differentiable Fuzzy RCC-8 Spatial Operator (Bloch, 2005)."""
     def __init__(
@@ -249,7 +239,6 @@ class DifferentiableFuzzyRCC8Loss(nn.Module):
         return fuzzy_rcc8_loss(
             mu, nu, self.kernel_size, self.border_value, self.eps, self.reduction, self.detach_denom
         )
-
 
 class FuzzyRCC8Loss(nn.Module):
     """
@@ -322,49 +311,7 @@ class FuzzyRCC8Loss(nn.Module):
             return loss_per_sample.sum()
         return loss_per_sample
 
-
 AnchoredFuzzyRCC8Loss = FuzzyRCC8Loss
-
-
-def gpu_pebay_moment_merge(
-    area: torch.Tensor,
-    mean: torch.Tensor,
-    m2: torch.Tensor,
-    idx_targets: torch.Tensor,
-    idx_sources: torch.Tensor,
-) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
-    """Teeninga & Wilkinson (2026) Sec. 4.4: Numerically stable parallel Pebay moment reduction."""
-    a0, a1 = area[idx_targets], area[idx_sources]
-    mu0, mu1 = mean[idx_targets], mean[idx_sources]
-    m2_0, m2_1 = m2[idx_targets], m2[idx_sources]
-
-    a_new = a0 + a1
-    delta = mu1 - mu0
-    safe_a = torch.clamp(a_new, min=1e-12)
-
-    area[idx_targets] = a_new
-    mean[idx_targets] = mu0 + (a1 * delta) / safe_a
-    m2[idx_targets] = m2_0 + m2_1 + (a0 * a1 * (delta * delta)) / safe_a
-    return area, mean, m2
-
-
-def gpu_tree_leaffix_accumulate(edge_array_list: list[torch.Tensor], attributes: torch.Tensor) -> torch.Tensor:
-    """Teeninga & Wilkinson (2026) Sec. 4.3: Race-condition-free GPU leaffix using index_add_."""
-    for edges in edge_array_list:
-        idx_targets = edges[:, 0]
-        idx_sources = edges[:, 1]
-        attributes.index_add_(0, idx_targets, attributes[idx_sources])
-    return attributes
-
-
-def gpu_tree_rootfix_reconstruct(edge_array_list: list[torch.Tensor], deltas: torch.Tensor) -> torch.Tensor:
-    """Teeninga & Wilkinson (2026) Sec. 4.3 & Urbach et al. (2007): Top-down rootfix in reverse contraction order."""
-    for edges in reversed(edge_array_list):
-        idx_targets = edges[:, 1]
-        idx_sources = edges[:, 0]
-        deltas.index_add_(0, idx_targets, deltas[idx_sources])
-    return deltas
-
 
 class ConformalRiskCalibrator(nn.Module):
     """Finite-sample Conformal Risk Control calibrator (Angelopoulos et al., 2024)."""

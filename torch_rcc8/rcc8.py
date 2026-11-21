@@ -1,7 +1,6 @@
 from enum import Enum
 from shapely.geometry import Polygon
 
-
 class RCC8(Enum):
     """
     Eight Jointly Exhaustive and Pairwise Disjoint (JEPD) base relations
@@ -15,7 +14,6 @@ class RCC8(Enum):
     NTPP = "non_tangential_proper_part"
     TPPi = "tangential_proper_part_inverse"
     NTPPi = "non_tangential_proper_part_inverse"
-
 
 def classify_rcc8(a: Polygon, b: Polygon) -> RCC8:
     """Classifies the topological relation between two 2D Shapely polygons."""

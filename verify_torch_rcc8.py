@@ -1,18 +1,10 @@
 from __future__ import annotations
 import torch
-from torch_morph_rcc8.diagnostics import (
-    AnchoredFuzzyRCC8Loss,
-    DifferentiableFuzzyRCC8Loss,
-    compute_rcc8_matrix,
-    gpu_pebay_moment_merge,
-    gpu_tree_leaffix_accumulate,
-    gpu_tree_rootfix_reconstruct,
-)
-
+from torch_rcc8.diagnostics import AnchoredFuzzyRCC8Loss, DifferentiableFuzzyRCC8Loss, compute_rcc8_matrix
 
 def main() -> None:
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    print(f"=== [torch-morph-rcc8 Verification Suite on {device.upper()}] ===")
+    print(f"=== [torch-rcc8 Verification Suite on {device.upper()}] ===")
 
     # 1. Batched (B, N, H, W) & Unbatched (N, H, W) RCC-8 JEPD Matrix Verification
     masks = torch.zeros((4, 32, 32), device=device)
@@ -50,15 +42,25 @@ def main() -> None:
     assert torch.allclose(grad_inside, grad_inside[0, 0, 0, 0]), "Gradients inside uniform anchor zone must be spatially uniform (zero fragmentation)"
     print(f"[PASS 3/4] AnchoredFuzzyRCC8Loss uniform gradient verified (loss={loss_val.item():.4f}, std_grad={grad_inside.std().item():.2e})")
 
-    # 4. Teeninga & Wilkinson (2026) Race-Condition-Free Leaffix & Pebay Moment Verification
-    edges = [torch.tensor([[0, 1], [0, 2], [0, 3]], dtype=torch.long, device=device)]
-    areas = torch.ones(4, dtype=torch.float32, device=device)
-    acc_areas = gpu_tree_leaffix_accumulate(edges, areas)
-    assert acc_areas[0].item() == 4.0, f"Expected parent area 4.0 via index_add_, got {acc_areas[0].item()}"
-    rec = gpu_tree_rootfix_reconstruct(edges, torch.tensor([10.0, 1.0, 2.0, 3.0], device=device))
-    assert torch.allclose(rec[1:], torch.tensor([11.0, 12.0, 13.0], device=device))
-    print("[PASS 4/4] GPU Tree Leaffix/Rootfix (index_add_) & Pebay Moment Reduction verified")
-    print("=== [ALL VERIFICATION CHECKS PASSED] ===")
+    # 4. Continuous SDF-RCC8 (DC + STL NTPPi) Autograd Verification
+    from torch_rcc8 import sdf_dc_loss, sdf_ntppi_stl_loss
+    dev = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    yy, xx = torch.meshgrid(
+        torch.arange(64, dtype=torch.float32, device=dev),
+        torch.arange(64, dtype=torch.float32, device=dev),
+        indexing='ij',
+    )
+    obs_sdf = torch.sqrt((xx - 32.0) ** 2 + (yy - 32.0) ** 2) - 6.0
+    pts = torch.tensor([[[31.0, 32.0]]], device=dev, requires_grad=True)
+    loss_dc = sdf_dc_loss(obs_sdf, pts, safety_margin=2.0)
+    loss_dc.backward()
+    assert loss_dc.item() > 0.0 and pts.grad is not None and torch.norm(pts.grad).item() > 0.0
+    xy = torch.tensor([[15.0, 15.0]], device=dev, requires_grad=True)
+    th = torch.tensor([0.0], device=dev, requires_grad=True)
+    tgt = torch.tensor([[15.0, 15.0]], device=dev)
+    loss_ntppi = sdf_ntppi_stl_loss(xy, th, tgt, half_l=8.0, half_w=4.0, margin=0.5)
+    assert loss_ntppi.item() < 1e-3
+    print("[PASS 4/4] Continuous SDF-RCC8 (DC + STL NTPPi) autograd verified.")
 
 
 if __name__ == "__main__":

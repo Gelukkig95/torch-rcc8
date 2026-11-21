@@ -1,0 +1,348 @@
+{
+  "device": "cuda",
+  "gpu_name": "NVIDIA GeForce RTX 3060 Laptop GPU",
+  "mppi_2x2_all": {
+    "mppi_plain_zero": {
+      "n": 632,
+      "full_stl_cnt": 396,
+      "full_stl_pct": 62.65822784810127,
+      "zero_coll_pct": 96.04430379746836,
+      "crop_safety_pct": 99.25830696202532,
+      "weed_cov_pct": 73.57434408644899,
+      "ang_tv": 2.2037190810034546,
+      "latency_ms": 192.04417721518988
+    },
+    "mppi_plain_pca": {
+      "n": 632,
+      "full_stl_cnt": 397,
+      "full_stl_pct": 62.81645569620253,
+      "zero_coll_pct": 96.20253164556962,
+      "crop_safety_pct": 99.33742088607595,
+      "weed_cov_pct": 73.15721855369173,
+      "ang_tv": 2.280076504225218,
+      "latency_ms": 192.22142405063292
+    },
+    "mppi_rcc8_zero": {
+      "n": 632,
+      "full_stl_cnt": 456,
+      "full_stl_pct": 72.15189873417721,
+      "zero_coll_pct": 95.88607594936708,
+      "crop_safety_pct": 99.22863924050634,
+      "weed_cov_pct": 80.22287245368278,
+      "ang_tv": 2.0234267989385732,
+      "latency_ms": 222.180996835443
+    },
+    "mppi_rcc8_pca": {
+      "n": 632,
+      "full_stl_cnt": 452,
+      "full_stl_pct": 71.51898734177216,
+      "zero_coll_pct": 95.88607594936708,
+      "crop_safety_pct": 99.20886075949366,
+      "weed_cov_pct": 79.67933977635789,
+      "ang_tv": 2.1034757938188844,
+      "latency_ms": 220.02136075949366
+    }
+  },
+  "mppi_2x2_feasible": {
+    "mppi_plain_zero": {
+      "n": 536,
+      "full_stl_cnt": 396,
+      "full_stl_pct": 73.88059701492537,
+      "zero_coll_pct": 96.64179104477611,
+      "crop_safety_pct": 99.39365671641791,
+      "weed_cov_pct": 83.54017395776377,
+      "ang_tv": 2.164815416976587,
+      "latency_ms": 191.80511194029853
+    },
+    "mppi_plain_pca": {
+      "n": 536,
+      "full_stl_cnt": 397,
+      "full_stl_pct": 74.06716417910447,
+      "zero_coll_pct": 96.82835820895522,
+      "crop_safety_pct": 99.45195895522389,
+      "weed_cov_pct": 83.15927325122392,
+      "ang_tv": 2.239343924197688,
+      "latency_ms": 192.37410447761192
+    },
+    "mppi_rcc8_zero": {
+      "n": 536,
+      "full_stl_cnt": 456,
+      "full_stl_pct": 85.07462686567165,
+      "zero_coll_pct": 96.64179104477611,
+      "crop_safety_pct": 99.39365671641791,
+      "weed_cov_pct": 89.66248127451138,
+      "ang_tv": 1.9412403767789477,
+      "latency_ms": 222.47246268656716
+    },
+    "mppi_rcc8_pca": {
+      "n": 536,
+      "full_stl_cnt": 452,
+      "full_stl_pct": 84.32835820895522,
+      "zero_coll_pct": 96.82835820895522,
+      "crop_safety_pct": 99.40531716417911,
+      "weed_cov_pct": 89.1107452949926,
+      "ang_tv": 2.0389700431877107,
+      "latency_ms": 220.1544589552239
+    }
+  },
+  "mppi_2x2_tight": {
+    "mppi_plain_zero": {
+      "n": 431,
+      "full_stl_cnt": 232,
+      "full_stl_pct": 53.82830626450116,
+      "zero_coll_pct": 95.1276102088167,
+      "crop_safety_pct": 99.05742459396751,
+      "weed_cov_pct": 65.86201706957374,
+      "ang_tv": 2.2777703610484394,
+      "latency_ms": 192.08060324825985
+    },
+    "mppi_plain_pca": {
+      "n": 431,
+      "full_stl_cnt": 232,
+      "full_stl_pct": 53.82830626450116,
+      "zero_coll_pct": 95.1276102088167,
+      "crop_safety_pct": 99.15893271461717,
+      "weed_cov_pct": 65.30936817420331,
+      "ang_tv": 2.331760173883903,
+      "latency_ms": 192.77624129930393
+    },
+    "mppi_rcc8_zero": {
+      "n": 431,
+      "full_stl_cnt": 284,
+      "full_stl_pct": 65.89327146171694,
+      "zero_coll_pct": 94.66357308584686,
+      "crop_safety_pct": 98.95591647331786,
+      "weed_cov_pct": 74.98413423236174,
+      "ang_tv": 2.1575155684123737,
+      "latency_ms": 221.50271461716937
+    },
+    "mppi_rcc8_pca": {
+      "n": 431,
+      "full_stl_cnt": 279,
+      "full_stl_pct": 64.73317865429235,
+      "zero_coll_pct": 94.66357308584686,
+      "crop_safety_pct": 98.95591647331786,
+      "weed_cov_pct": 74.04646517886087,
+      "ang_tv": 2.2172421940241502,
+      "latency_ms": 218.44359628770297
+    }
+  },
+  "master_all": {
+    "straight": {
+      "n": 632,
+      "full_stl_cnt": 71,
+      "full_stl_pct": 11.234177215189874,
+      "zero_coll_pct": 11.39240506329114,
+      "crop_safety_pct": 61.15506329113924,
+      "weed_cov_pct": 99.85054167388361,
+      "ang_tv": 0.0,
+      "latency_ms": 0.39512658227848096
+    },
+    "rrt_star": {
+      "n": 632,
+      "full_stl_cnt": 341,
+      "full_stl_pct": 53.95569620253164,
+      "zero_coll_pct": 92.40506329113924,
+      "crop_safety_pct": 99.40664556962025,
+      "weed_cov_pct": 64.1322592768488,
+      "ang_tv": 2.5143888100651623,
+      "latency_ms": 56.64242088607595
+    },
+    "plain_sdf_stl": {
+      "n": 632,
+      "full_stl_cnt": 299,
+      "full_stl_pct": 47.310126582278485,
+      "zero_coll_pct": 52.84810126582279,
+      "crop_safety_pct": 93.56210443037975,
+      "weed_cov_pct": 94.59554975074303,
+      "ang_tv": 6.420647212740364,
+      "latency_ms": 1455.9791139240508
+    },
+    "sdf_rcc8_stl": {
+      "n": 632,
+      "full_stl_cnt": 382,
+      "full_stl_pct": 60.44303797468354,
+      "zero_coll_pct": 63.4493670886076,
+      "crop_safety_pct": 94.44224683544303,
+      "weed_cov_pct": 97.4102530699176,
+      "ang_tv": 6.613090459339887,
+      "latency_ms": 1666.8250316455694
+    },
+    "mppi_plain_zero": {
+      "n": 632,
+      "full_stl_cnt": 396,
+      "full_stl_pct": 62.65822784810127,
+      "zero_coll_pct": 96.04430379746836,
+      "crop_safety_pct": 99.25830696202532,
+      "weed_cov_pct": 73.57434408644899,
+      "ang_tv": 2.2037190810034546,
+      "latency_ms": 192.04417721518988
+    },
+    "mppi_rcc8_zero": {
+      "n": 632,
+      "full_stl_cnt": 456,
+      "full_stl_pct": 72.15189873417721,
+      "zero_coll_pct": 95.88607594936708,
+      "crop_safety_pct": 99.22863924050634,
+      "weed_cov_pct": 80.22287245368278,
+      "ang_tv": 2.0234267989385732,
+      "latency_ms": 222.180996835443
+    },
+    "mppi_plain_pca": {
+      "n": 632,
+      "full_stl_cnt": 397,
+      "full_stl_pct": 62.81645569620253,
+      "zero_coll_pct": 96.20253164556962,
+      "crop_safety_pct": 99.33742088607595,
+      "weed_cov_pct": 73.15721855369173,
+      "ang_tv": 2.280076504225218,
+      "latency_ms": 192.22142405063292
+    },
+    "mppi_rcc8_pca": {
+      "n": 632,
+      "full_stl_cnt": 452,
+      "full_stl_pct": 71.51898734177216,
+      "zero_coll_pct": 95.88607594936708,
+      "crop_safety_pct": 99.20886075949366,
+      "weed_cov_pct": 79.67933977635789,
+      "ang_tv": 2.1034757938188844,
+      "latency_ms": 220.02136075949366
+    },
+    "hybrid_rrt_sdf_rcc8": {
+      "n": 632,
+      "full_stl_cnt": 422,
+      "full_stl_pct": 66.77215189873418,
+      "zero_coll_pct": 97.15189873417721,
+      "crop_safety_pct": 99.81210443037975,
+      "weed_cov_pct": 71.50564777511585,
+      "ang_tv": 2.6366010253093664,
+      "latency_ms": 199.24330696202531
+    }
+  },
+  "master_feasible": {
+    "straight": {
+      "n": 536,
+      "full_stl_cnt": 71,
+      "full_stl_pct": 13.246268656716417,
+      "zero_coll_pct": 13.432835820895523,
+      "crop_safety_pct": 63.654384328358205,
+      "weed_cov_pct": 99.82979131945923,
+      "ang_tv": 0.0,
+      "latency_ms": 0.39294776119402985
+    },
+    "rrt_star": {
+      "n": 536,
+      "full_stl_cnt": 341,
+      "full_stl_pct": 63.61940298507462,
+      "zero_coll_pct": 92.16417910447761,
+      "crop_safety_pct": 99.37033582089553,
+      "weed_cov_pct": 74.24834068975787,
+      "ang_tv": 2.5049285887837853,
+      "latency_ms": 51.9557276119403
+    },
+    "plain_sdf_stl": {
+      "n": 536,
+      "full_stl_cnt": 299,
+      "full_stl_pct": 55.78358208955224,
+      "zero_coll_pct": 62.31343283582089,
+      "crop_safety_pct": 95.34748134328358,
+      "weed_cov_pct": 95.90497115877137,
+      "ang_tv": 6.27935889079722,
+      "latency_ms": 1457.0498134328357
+    },
+    "sdf_rcc8_stl": {
+      "n": 536,
+      "full_stl_cnt": 382,
+      "full_stl_pct": 71.26865671641791,
+      "zero_coll_pct": 74.6268656716418,
+      "crop_safety_pct": 96.31529850746269,
+      "weed_cov_pct": 97.98521893932971,
+      "ang_tv": 6.42443629458491,
+      "latency_ms": 1664.3416604477611
+    },
+    "mppi_plain_zero": {
+      "n": 536,
+      "full_stl_cnt": 396,
+      "full_stl_pct": 73.88059701492537,
+      "zero_coll_pct": 96.64179104477611,
+      "crop_safety_pct": 99.39365671641791,
+      "weed_cov_pct": 83.54017395776377,
+      "ang_tv": 2.164815416976587,
+      "latency_ms": 191.80511194029853
+    },
+    "mppi_rcc8_zero": {
+      "n": 536,
+      "full_stl_cnt": 456,
+      "full_stl_pct": 85.07462686567165,
+      "zero_coll_pct": 96.64179104477611,
+      "crop_safety_pct": 99.39365671641791,
+      "weed_cov_pct": 89.66248127451138,
+      "ang_tv": 1.9412403767789477,
+      "latency_ms": 222.47246268656716
+    },
+    "mppi_plain_pca": {
+      "n": 536,
+      "full_stl_cnt": 397,
+      "full_stl_pct": 74.06716417910447,
+      "zero_coll_pct": 96.82835820895522,
+      "crop_safety_pct": 99.45195895522389,
+      "weed_cov_pct": 83.15927325122392,
+      "ang_tv": 2.239343924197688,
+      "latency_ms": 192.37410447761192
+    },
+    "mppi_rcc8_pca": {
+      "n": 536,
+      "full_stl_cnt": 452,
+      "full_stl_pct": 84.32835820895522,
+      "zero_coll_pct": 96.82835820895522,
+      "crop_safety_pct": 99.40531716417911,
+      "weed_cov_pct": 89.1107452949926,
+      "ang_tv": 2.0389700431877107,
+      "latency_ms": 220.1544589552239
+    },
+    "hybrid_rrt_sdf_rcc8": {
+      "n": 536,
+      "full_stl_cnt": 422,
+      "full_stl_pct": 78.73134328358209,
+      "zero_coll_pct": 97.76119402985076,
+      "crop_safety_pct": 99.84841417910447,
+      "weed_cov_pct": 82.19606743208064,
+      "ang_tv": 2.6531950819736987,
+      "latency_ms": 154.24085820895525
+    }
+  },
+  "mcnemar_tests": {
+    "mppi_rcc8_zero_vs_mppi_plain_zero": {
+      "both_ok": 393,
+      "only_a": 63,
+      "only_b": 3,
+      "both_fail": 173,
+      "chi2": 52.742,
+      "p_value": 3.802873593609117e-13
+    },
+    "mppi_rcc8_pca_vs_mppi_plain_pca": {
+      "both_ok": 397,
+      "only_a": 55,
+      "only_b": 0,
+      "both_fail": 180,
+      "chi2": 53.018,
+      "p_value": 3.3047513038053057e-13
+    },
+    "mppi_rcc8_pca_vs_mppi_plain_zero": {
+      "both_ok": 394,
+      "only_a": 58,
+      "only_b": 2,
+      "both_fail": 178,
+      "chi2": 50.417,
+      "p_value": 1.2433380188924929e-12
+    },
+    "mppi_rcc8_zero_vs_mppi_plain_pca": {
+      "both_ok": 395,
+      "only_a": 61,
+      "only_b": 2,
+      "both_fail": 174,
+      "chi2": 53.397,
+      "p_value": 2.7253692095168706e-13
+    }
+  }
+}

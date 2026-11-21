@@ -2,7 +2,6 @@ import numpy as np
 from skimage import measure
 from shapely.geometry import Polygon
 
-
 def mask_to_polygon(mask: np.ndarray, level: float = 0.5) -> Polygon | None:
     """
     Converts a 2D binary/probability mask into a continuous Shapely Polygon

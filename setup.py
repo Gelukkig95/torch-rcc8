@@ -1,20 +1,10 @@
-from setuptools import setup, find_packages
-
+from setuptools import find_packages, setup
 setup(
-    name="torch-morph-rcc8",
-    version="0.4.0",
-    description="Differentiable Fuzzy RCC-8 Spatial Logic & Max-Tree Morphological Operators in PyTorch",
+    name="torch-rcc8",
+    version="0.2.0",
+    description="Differentiable Raster & Continuous-SDF RCC-8 in PyTorch",
     author="Jinwon Kim",
-    url="https://github.com/Gelukkig95/torch-morph-rcc8",
-    packages=find_packages(),
-    install_requires=[
-        "torch",
-        "numpy",
-        "scipy",
-        "shapely",
-        "scikit-image",
-    ],
-    extras_require={
-        "maxtree": ["higra"],
-    },
+    packages=find_packages(include=["torch_rcc8", "torch_rcc8.*"]),
+    python_requires=">=3.9",
+    install_requires=["torch>=2.0.0", "numpy>=1.23.0"],
 )
